@@ -19,20 +19,19 @@ import {
     View,
 } from 'react-native';
 
-console.disableYellowBox = true;
-
 const {height} = Dimensions.get('window');
 const duration = 500;
 const maxHeight = height * .9;
-const allowedDragUpSize = 50;
 
 const App: () => React$Node = () => {
 
     const [contentHeight, setContentHeight] = React.useState(0); // height of the content inside the bottom sheet
     const threshold = contentHeight * 0.1; // minimum height to drag to close the bottom sheet
     const opacity = new Animated.Value(0); // manage the opacity of the background when bottom sheet is open
-    const parentTranslateY = new Animated.Value(height); // manage position of the bottom sheet
+    const translateY = new Animated.Value(height); // manage position of the container's bottom sheet
     const pan = new Animated.ValueXY(0); // { x: Number, y: Number }
+    const dragTopBackgroundHeight = new Animated.Value(0)
+
 
     // get the size of the content inside the bottom sheet
     const onLayout = (event) => {
@@ -44,7 +43,7 @@ const App: () => React$Node = () => {
     const open = () => {
         Animated.parallel([
             Animated.timing(
-                parentTranslateY,
+                translateY,
                 {
                     toValue: 0,
                     duration: duration,
@@ -75,7 +74,7 @@ const App: () => React$Node = () => {
                 },
             ),
             Animated.timing(
-                parentTranslateY,
+                translateY,
                 {
                     toValue: height,
                     duration: duration,
@@ -99,12 +98,17 @@ const App: () => React$Node = () => {
             ],
             {
                 useNativeDriver: false, // Animated.event doesn't support the native driver
-                listener: (event, gestureState) => null, // don't want to add some logic so return null
+                listener: (event, { dy }) => {
+                    if (dy <= 0) {
+                        const dyAbs = Math.abs(dy) // ex : -20 => 20
+                        dragTopBackgroundHeight.setValue(dyAbs)
+                    }
+                }
             },
         ),
         onPanResponderRelease: (e, {vx, vy}) => {
             const {y} = pan;
-            y._value > threshold ? close() : (
+            y.__getValue() > threshold ? close() : (
                 Animated.spring( // go back to origin state
                     pan,
                     {
@@ -132,7 +136,7 @@ const App: () => React$Node = () => {
                 onPress={open}
             >
                 <Text>
-                    Touch me
+                    Touch me 🤧
                 </Text>
             </TouchableOpacity>
 
@@ -142,7 +146,7 @@ const App: () => React$Node = () => {
                     {
                         transform: [
                             {
-                                translateY: parentTranslateY,
+                                translateY: translateY,
                             },
                         ],
                     },
@@ -159,9 +163,7 @@ const App: () => React$Node = () => {
                                 {
                                     opacity: opacity,
                                 },
-                                opacity !== 0 && {
-                                    backgroundColor: '#333',
-                                }
+                                opacity !== 0 && { backgroundColor: '#333' }
                             ]}
                         />
                     </TouchableWithoutFeedback>
@@ -194,6 +196,9 @@ const App: () => React$Node = () => {
                             </ScrollView>
                         )}
                     </Animated.View>
+                    <Animated.View
+                        style={[styles.dragTopBackground, { height: dragTopBackgroundHeight } ]}
+                    />
                 </View>
             </Animated.View>
         </View>
@@ -247,6 +252,12 @@ const styles = StyleSheet.create({
     content: {
         padding: 25,
     },
+    dragTopBackground: {
+        position: 'absolute',
+        bottom: 0,
+        backgroundColor: '#ffffff',
+        width: '100%',
+    }
 });
 
 export default App;
