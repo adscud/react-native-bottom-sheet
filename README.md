@@ -9,4 +9,4 @@ Native bottom sheet support Gesture Handler.
 - [x] Persistent option
 - [x] Make it reusable component
 - [x] Handle Keyboard cycle 
-- [ ] Back handler
+- [x] Back handler
