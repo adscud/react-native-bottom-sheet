@@ -105,16 +105,26 @@ const BottomSheetComponent = ({shouldOpen = false, onClose, renderContent, persi
         ),
         onPanResponderRelease: (e, {vx, vy}) => {
             const {y} = pan;
-            y.__getValue() > threshold ? close() : (
-                Animated.spring( // go back to origin state
-                    pan,
-                    {
-                        toValue: {x: 0, y: 0},
-                        useNativeDriver: true,
-                    },
-                ).start()
-            );
-            pan.flattenOffset(); // reset pan { x: 0, y: 0}
+            y.__getValue() > threshold ? closeBottomSheet() : (
+                Animated.parallel([
+                    Animated.spring( // go back to origin state
+                        pan,
+                        {
+                            toValue: {x: 0, y: 0},
+                            useNativeDriver: false,
+                        },
+                    ),
+                    Animated.spring(
+                        dragTopBackgroundHeight,
+                        {
+                            toValue: 0,
+                            useNativeDriver: false
+                        }
+                    )
+                ]).start()
+            )
+            pan.flattenOffset();
+            // reset pan { x: 0, y: 0}
         },
     });
 
