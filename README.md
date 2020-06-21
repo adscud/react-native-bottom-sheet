@@ -1,6 +1,6 @@
-Native native bottom sheet support Gesture Handler.
+Native bottom sheet support Gesture Handler.
 
-🤓 In progress
+🤓  In progress
 - [x] Open on press button
 - [x] Close on press background bottom sheet
 - [ ] Add gesture handler
