@@ -15,15 +15,17 @@ const maxHeight = height * .9
 
 const App: () => React$Node = () => {
 
-    const [ contentHeight, setContentHeight ] = React.useState(0)
-    const opacity = new Animated.Value(0);
-    const translateY = new Animated.Value(height);
+    const [ contentHeight, setContentHeight ] = React.useState(0); // height of the content inside the bottom sheet
+    const opacity = new Animated.Value(0); // manage the opacity of the background when bottom sheet is open
+    const translateY = new Animated.Value(height); // manage position of the bottom sheet
 
+    // get the size of the content inside the bottom sheet
     const onLayout = (event) => {
         const { height } = event.nativeEvent.layout
         setContentHeight(height)
     }
 
+    // open the bottom sheet
     const open = () => {
         Animated.parallel([
             Animated.timing(
@@ -46,6 +48,7 @@ const App: () => React$Node = () => {
         ]).start();
     };
 
+    // close the bottom sheet
     const close = () => {
         Animated.parallel([
             Animated.timing(
@@ -120,7 +123,7 @@ const App: () => React$Node = () => {
                             <View>
                                 {content()}
                             </View>
-                        ) : (
+                        ) : ( // content > maxHeight so we need to scroll inside our bottom sheet
                             <ScrollView>
                                 {content()}
                             </ScrollView>
