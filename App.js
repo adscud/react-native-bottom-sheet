@@ -7,7 +7,8 @@
  */
 
 import React from 'react';
-import {Animated, TouchableOpacity, Dimensions, StyleSheet, Text, TouchableWithoutFeedback, View, ScrollView} from 'react-native';
+import {Animated, TouchableOpacity, Dimensions, StyleSheet, Text, TouchableWithoutFeedback, View, ScrollView, PanResponder} from 'react-native';
+console.disableYellowBox = true;
 
 const {height} = Dimensions.get('window');
 const duration = 500;
@@ -16,8 +17,10 @@ const maxHeight = height * .9
 const App: () => React$Node = () => {
 
     const [ contentHeight, setContentHeight ] = React.useState(0); // height of the content inside the bottom sheet
+    const threshold = contentHeight * 0.1
     const opacity = new Animated.Value(0); // manage the opacity of the background when bottom sheet is open
-    const translateY = new Animated.Value(height); // manage position of the bottom sheet
+    const parentTranslateY = new Animated.Value(height); // manage position of the bottom sheet
+    const pan = new Animated.ValueXY(0)
 
     // get the size of the content inside the bottom sheet
     const onLayout = (event) => {
@@ -29,7 +32,7 @@ const App: () => React$Node = () => {
     const open = () => {
         Animated.parallel([
             Animated.timing(
-                translateY,
+                parentTranslateY,
                 {
                     toValue: 0,
                     duration: duration,
@@ -60,22 +63,52 @@ const App: () => React$Node = () => {
                 },
             ),
             Animated.timing(
-                translateY,
+                parentTranslateY,
                 {
                     toValue: height,
                     duration: duration,
                     useNativeDriver: true,
                 },
             ),
-        ]).start();
+        ]).start(() => pan.setValue({ x: 0, y: 0 }));
     };
+
+    const panResponder = PanResponder.create({
+        onMoveShouldSetPanResponderCapture: () => true,
+        onPanResponderMove: Animated.event(
+            [
+                null,
+                {
+                    dx: pan.x,
+                    dy: pan.y
+                }
+            ],
+            {
+                useNativeDriver: false,
+                listener: (event, gestureState) => true,
+            }
+        ),
+        onPanResponderRelease: (e, { vx, vy }) => {
+            const { y } = pan
+            y._value > threshold ? close() : (
+                Animated.spring(
+                    pan,
+                    {
+                        toValue: { x: 0, y: 0 },
+                        useNativeDriver: true
+                    }
+                ).start()
+            )
+            pan.flattenOffset()
+        }
+    })
 
     const content = () => (
         <View  style={styles.content}>
             <Text>
                 Hi, i'm the bottom sheet
             </Text>
-            <View style={{ height: 1000, backgroundColor: 'pink' }} />
+            <View style={{ height: 1000, backgroundColor: 'yellow' }} />
         </View>
     )
 
@@ -94,7 +127,11 @@ const App: () => React$Node = () => {
                 style={[
                     styles.containerBottomSheet,
                     {
-                        transform: [{translateY: translateY}],
+                        transform: [
+                            {
+                                translateY: parentTranslateY
+                            }
+                        ],
                     },
                 ]}
             >
@@ -112,11 +149,23 @@ const App: () => React$Node = () => {
                             ]}
                         />
                     </TouchableWithoutFeedback>
-                    <View
-                        style={styles.bottomSheet}
+                    <Animated.View
+                        style={[
+                            styles.bottomSheet,
+                            {
+                                transform: [
+                                    {
+                                        translateY: pan.y
+                                    }
+                                ]
+                            }
+                        ]}
                         onLayout={onLayout}
                     >
-                        <View style={styles.anchorView}>
+                        <View
+                            {...panResponder.panHandlers}
+                            style={styles.anchorView}
+                        >
                             <View style={styles.anchor}/>
                         </View>
                         {contentHeight <= maxHeight ? (
@@ -128,7 +177,7 @@ const App: () => React$Node = () => {
                                 {content()}
                             </ScrollView>
                         )}
-                    </View>
+                    </Animated.View>
                 </View>
             </Animated.View>
         </View>
