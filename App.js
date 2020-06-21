@@ -17,10 +17,10 @@ const maxHeight = height * .9
 const App: () => React$Node = () => {
 
     const [ contentHeight, setContentHeight ] = React.useState(0); // height of the content inside the bottom sheet
-    const threshold = contentHeight * 0.1
+    const threshold = contentHeight * 0.1 // minimum height to drag to close the bottom sheet
     const opacity = new Animated.Value(0); // manage the opacity of the background when bottom sheet is open
     const parentTranslateY = new Animated.Value(height); // manage position of the bottom sheet
-    const pan = new Animated.ValueXY(0)
+    const pan = new Animated.ValueXY(0) // { x: Number, y: Number }
 
     // get the size of the content inside the bottom sheet
     const onLayout = (event) => {
@@ -77,21 +77,23 @@ const App: () => React$Node = () => {
         onMoveShouldSetPanResponderCapture: () => true,
         onPanResponderMove: Animated.event(
             [
-                null,
+                null, // ignore the native event
                 {
+                    // extract dx and dy from gestureState
+                    // like 'pan.x = gestureState.dx, pan.y = gestureState.dy'
                     dx: pan.x,
                     dy: pan.y
                 }
             ],
             {
-                useNativeDriver: false,
-                listener: (event, gestureState) => true,
+                useNativeDriver: false, // Animated.event doesn't support the native driver
+                listener: (event, gestureState) => null, // don't want to add some logic so return null
             }
         ),
         onPanResponderRelease: (e, { vx, vy }) => {
             const { y } = pan
             y._value > threshold ? close() : (
-                Animated.spring(
+                Animated.spring( // go back to origin state
                     pan,
                     {
                         toValue: { x: 0, y: 0 },
@@ -99,7 +101,7 @@ const App: () => React$Node = () => {
                     }
                 ).start()
             )
-            pan.flattenOffset()
+            pan.flattenOffset() // reset pan { x: 0, y: 0}
         }
     })
 
