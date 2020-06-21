@@ -24,7 +24,7 @@ const BottomSheetComponent = ({shouldOpen = false, onClose, renderContent, persi
 
     const opacity = React.useRef(new Animated.Value(0)).current; // manage the opacity of the background when bottom sheet is open
     const translateY = React.useRef(new Animated.Value(height)).current; // manage position of the container's bottom sheet
-    const underKeyboardHeight = React.useRef(new Animated.Value(0)).current;
+    const underKeyboardHeight = React.useRef(new Animated.Value(0)).current; // size of the view under the keyboard on ios to avoid keyboard over the content
     const dragTopBackgroundHeight = new Animated.Value(0);
 
     const pan = new Animated.ValueXY(0); // { x: Number, y: Number }
@@ -56,6 +56,7 @@ const BottomSheetComponent = ({shouldOpen = false, onClose, renderContent, persi
         };
     }, []);
 
+    // handle back button on android
     OS === 'android' && React.useEffect(() => {
         const backHandler = BackHandler.addEventListener(
             "hardwareBackPress",
@@ -123,7 +124,6 @@ const BottomSheetComponent = ({shouldOpen = false, onClose, renderContent, persi
     };
 
     const keyboardShow = () => {
-        console.log(keyboardHeight)
         Animated.timing(
             underKeyboardHeight,
             {
