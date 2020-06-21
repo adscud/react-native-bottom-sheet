@@ -34,21 +34,19 @@ const BottomSheetComponent = ({shouldOpen = false, onClose, renderContent, persi
         shouldOpen && openBottomSheet();
     }, [shouldOpen]);
 
+    React.useEffect(() => {
+        keyboardHeight !== 0 ? keyboardShow() : keyboardDismiss()
+    }, [ keyboardHeight ])
+
 
     OS === 'ios' && React.useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow',
-            (event) => {
-                setKeyboardHeight(event.endCoordinates.height)
-                keyboardShow()
-            },
+            (event) => setKeyboardHeight(event.endCoordinates.height),
         );
         const keyboardDidHideListener = Keyboard.addListener(
             'keyboardDidHide',
-            () => {
-                setKeyboardHeight(0)
-                keyboardDismiss()
-            },
+            () => setKeyboardHeight(0),
         );
 
         return () => {
@@ -82,7 +80,7 @@ const BottomSheetComponent = ({shouldOpen = false, onClose, renderContent, persi
                     useNativeDriver: true,
                 },
             ),
-        ]).start(() => keyboardShow());
+        ]).start();
     };
 
     // close the bottom sheet
@@ -112,6 +110,7 @@ const BottomSheetComponent = ({shouldOpen = false, onClose, renderContent, persi
     };
 
     const keyboardShow = () => {
+        console.log(keyboardHeight)
         Animated.timing(
             underKeyboardHeight,
             {
