@@ -99,7 +99,7 @@ const App: () => React$Node = () => {
             {
                 useNativeDriver: false, // Animated.event doesn't support the native driver
                 listener: (event, { dy }) => {
-                    if (dy <= 0) {
+                    if (dy <= 0) { // if drag to the top, we grow up our view because don't want that the user seen nothing
                         const dyAbs = Math.abs(dy) // ex : -20 => 20
                         dragTopBackgroundHeight.setValue(dyAbs)
                     }
