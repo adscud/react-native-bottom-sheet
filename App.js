@@ -30,7 +30,7 @@ const App: () => React$Node = () => {
                 onPress={() => setOpenSecond(true)}
             >
                 <Text>
-                    Touch me 🤧
+                    Touch me for a persistent bottom-sheet 🤧
                 </Text>
             </TouchableOpacity>
 
@@ -49,9 +49,12 @@ const App: () => React$Node = () => {
             <BottomSheetComponent
                 shouldOpen={openSecond}
                 onClose={() => setOpenSecond(false)}
+                persistent
                 renderContent={() => (
                     <View style={styles.content}>
                         <Text>Hi, i'm an other bottom sheet =)</Text>
+                        <Text>I'm persistent, you cannot close me 🤩</Text>
+                        <Text>Just for you, i will close myself in 10 seconds...</Text>
                     </View>
                 )}
             />
@@ -67,6 +70,9 @@ const styles = StyleSheet.create({
     },
     button: {
         marginVertical: 5,
+    },
+    content: {
+        padding: 25,
     },
 });
 

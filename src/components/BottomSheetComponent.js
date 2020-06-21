@@ -27,6 +27,9 @@ const BottomSheetComponent = ({shouldOpen = false, onClose, renderContent, persi
         shouldOpen && openBottomSheet();
     }, [shouldOpen]);
 
+    React.useEffect(() => { // Only for demo
+        persistent && setTimeout(() => closeBottomSheet(), 10000)
+    }, [ persistent ])
 
     // get the size of the content inside the bottom sheet
     const onLayout = (event) => {
@@ -105,7 +108,7 @@ const BottomSheetComponent = ({shouldOpen = false, onClose, renderContent, persi
         ),
         onPanResponderRelease: (e, {vx, vy}) => {
             const {y} = pan;
-            y.__getValue() > threshold ? closeBottomSheet() : (
+            y.__getValue() > threshold && !persistent ? closeBottomSheet() : (
                 Animated.parallel([
                     Animated.spring( // go back to origin state
                         pan,
@@ -145,7 +148,7 @@ const BottomSheetComponent = ({shouldOpen = false, onClose, renderContent, persi
                 <View style={{flex: 1, position: 'relative'}}>
                     <TouchableWithoutFeedback
                         style={styles.layoutBottomSheet}
-                        onPress={closeBottomSheet}
+                        onPress={() => !persistent && closeBottomSheet()}
                     >
                         <Animated.View
                             style={[
@@ -230,9 +233,6 @@ const styles = StyleSheet.create({
         width: 60,
         backgroundColor: 'rgba(0, 0, 0, .2)',
         borderRadius: 30,
-    },
-    content: {
-        padding: 25,
     },
     dragTopBackground: {
         position: 'absolute',
