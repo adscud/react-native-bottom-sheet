@@ -9,6 +9,7 @@ import {
     StyleSheet,
     TouchableWithoutFeedback,
     View,
+    BackHandler
 } from 'react-native';
 
 const {OS} = Platform;
@@ -54,6 +55,18 @@ const BottomSheetComponent = ({shouldOpen = false, onClose, renderContent, persi
             keyboardDidShowListener.remove();
         };
     }, []);
+
+    OS === 'android' && React.useEffect(() => {
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            () => {
+                closeBottomSheet()
+                return true
+            }
+        );
+
+        return () => backHandler.remove();
+    })
 
     // get the size of the content inside the bottom sheet
     const onLayout = (event) => {
