@@ -7,26 +7,38 @@
  */
 
 import React from 'react';
-import {Animated, TouchableOpacity, Dimensions, StyleSheet, Text, TouchableWithoutFeedback, View, ScrollView, PanResponder} from 'react-native';
+import {
+    Animated,
+    Dimensions,
+    PanResponder,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
+} from 'react-native';
+
 console.disableYellowBox = true;
 
 const {height} = Dimensions.get('window');
 const duration = 500;
-const maxHeight = height * .9
+const maxHeight = height * .9;
+const allowedDragUpSize = 50;
 
 const App: () => React$Node = () => {
 
-    const [ contentHeight, setContentHeight ] = React.useState(0); // height of the content inside the bottom sheet
-    const threshold = contentHeight * 0.1 // minimum height to drag to close the bottom sheet
+    const [contentHeight, setContentHeight] = React.useState(0); // height of the content inside the bottom sheet
+    const threshold = contentHeight * 0.1; // minimum height to drag to close the bottom sheet
     const opacity = new Animated.Value(0); // manage the opacity of the background when bottom sheet is open
     const parentTranslateY = new Animated.Value(height); // manage position of the bottom sheet
-    const pan = new Animated.ValueXY(0) // { x: Number, y: Number }
+    const pan = new Animated.ValueXY(0); // { x: Number, y: Number }
 
     // get the size of the content inside the bottom sheet
     const onLayout = (event) => {
-        const { height } = event.nativeEvent.layout
-        setContentHeight(height)
-    }
+        const {height} = event.nativeEvent.layout;
+        setContentHeight(height);
+    };
 
     // open the bottom sheet
     const open = () => {
@@ -70,7 +82,7 @@ const App: () => React$Node = () => {
                     useNativeDriver: true,
                 },
             ),
-        ]).start(() => pan.setValue({ x: 0, y: 0 }));
+        ]).start(() => pan.setValue({x: 0, y: 0}));
     };
 
     const panResponder = PanResponder.create({
@@ -82,42 +94,41 @@ const App: () => React$Node = () => {
                     // extract dx and dy from gestureState
                     // like 'pan.x = gestureState.dx, pan.y = gestureState.dy'
                     dx: pan.x,
-                    dy: pan.y
-                }
+                    dy: pan.y,
+                },
             ],
             {
                 useNativeDriver: false, // Animated.event doesn't support the native driver
                 listener: (event, gestureState) => null, // don't want to add some logic so return null
-            }
+            },
         ),
-        onPanResponderRelease: (e, { vx, vy }) => {
-            const { y } = pan
+        onPanResponderRelease: (e, {vx, vy}) => {
+            const {y} = pan;
             y._value > threshold ? close() : (
                 Animated.spring( // go back to origin state
                     pan,
                     {
-                        toValue: { x: 0, y: 0 },
-                        useNativeDriver: true
-                    }
+                        toValue: {x: 0, y: 0},
+                        useNativeDriver: true,
+                    },
                 ).start()
-            )
-            pan.flattenOffset() // reset pan { x: 0, y: 0}
-        }
-    })
+            );
+            pan.flattenOffset(); // reset pan { x: 0, y: 0}
+        },
+    });
 
-    const content = () => (
-        <View  style={styles.content}>
-            <Text>
-                Hi, i'm the bottom sheet
-            </Text>
-            <View style={{ height: 1000, backgroundColor: 'yellow' }} />
+    const renderContent = () => (
+        <View style={styles.content}>
+            <Text>Hi, i'm the bottom sheet =)</Text>
+            <View style={{ height: 300, backgroundColor: 'grey' }} />
+            <View style={{ height: 100, backgroundColor: 'blue' }} />
         </View>
-    )
+    );
 
     return (
         <View style={styles.container}>
             <TouchableOpacity
-                style={{ zIndex: 1 }}
+                style={styles.button}
                 onPress={open}
             >
                 <Text>
@@ -131,8 +142,8 @@ const App: () => React$Node = () => {
                     {
                         transform: [
                             {
-                                translateY: parentTranslateY
-                            }
+                                translateY: parentTranslateY,
+                            },
                         ],
                     },
                 ]}
@@ -148,6 +159,9 @@ const App: () => React$Node = () => {
                                 {
                                     opacity: opacity,
                                 },
+                                opacity !== 0 && {
+                                    backgroundColor: '#333',
+                                }
                             ]}
                         />
                     </TouchableWithoutFeedback>
@@ -157,10 +171,10 @@ const App: () => React$Node = () => {
                             {
                                 transform: [
                                     {
-                                        translateY: pan.y
-                                    }
-                                ]
-                            }
+                                        translateY: pan.y,
+                                    },
+                                ],
+                            },
                         ]}
                         onLayout={onLayout}
                     >
@@ -172,11 +186,11 @@ const App: () => React$Node = () => {
                         </View>
                         {contentHeight <= maxHeight ? (
                             <View>
-                                {content()}
+                                {renderContent()}
                             </View>
                         ) : ( // content > maxHeight so we need to scroll inside our bottom sheet
                             <ScrollView>
-                                {content()}
+                                {renderContent()}
                             </ScrollView>
                         )}
                     </Animated.View>
@@ -192,6 +206,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    button: {
+        marginVertical: 5,
+    },
     containerBottomSheet: {
         position: 'absolute',
         height: '100%',
@@ -199,7 +216,6 @@ const styles = StyleSheet.create({
     },
     layoutBottomSheet: {
         height: height,
-        backgroundColor: '#333',
     },
     layoutOpacity: {
         backgroundColor: 'rgba(0, 0, 0, 0.15)',
@@ -212,7 +228,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         borderTopRightRadius: 25,
         borderTopLeftRadius: 25,
-        zIndex: 15
+        zIndex: 15,
     },
     anchorView: {
         height: 30,
