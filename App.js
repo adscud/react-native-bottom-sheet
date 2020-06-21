@@ -7,13 +7,16 @@
  */
 
 import React from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View, TextInput, KeyboardAvoidingView} from 'react-native';
 import BottomSheetComponent from './src/components/BottomSheetComponent';
 
 
 const App: () => React$Node = () => {
     const [openFirst, setOpenFirst] = React.useState(false);
     const [openSecond, setOpenSecond] = React.useState(false);
+    const [openThird, setOpenThird] = React.useState(false);
+
+    const [ name, setName ] = React.useState('')
 
     return (
         <View style={styles.container}>
@@ -31,6 +34,14 @@ const App: () => React$Node = () => {
             >
                 <Text>
                     Touch me for a persistent bottom-sheet 🤧
+                </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                style={styles.button}
+                onPress={() => setOpenThird(true)}
+            >
+                <Text>
+                    Touch me to tell me what is your name 🤧
                 </Text>
             </TouchableOpacity>
 
@@ -54,8 +65,23 @@ const App: () => React$Node = () => {
                     <View style={styles.content}>
                         <Text>Hi, i'm an other bottom sheet =)</Text>
                         <Text>I'm persistent, you cannot close me 🤩</Text>
-                        <Text>Just for you, i will close myself in 10 seconds...</Text>
                     </View>
+                )}
+            />
+
+            <BottomSheetComponent
+                shouldOpen={openThird}
+                onClose={() => setOpenThird(false)}
+                renderContent={() => (
+                    <KeyboardAvoidingView style={styles.content}>
+                        <Text>
+                            Your name is : {name}
+                        </Text>
+                        <TextInput
+                            value={name}
+                            onChangeText={setName}
+                        />
+                    </KeyboardAvoidingView>
                 )}
             />
         </View>
