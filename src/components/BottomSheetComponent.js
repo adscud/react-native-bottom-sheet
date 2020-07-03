@@ -15,6 +15,7 @@ import {
     Dimensions,
     Platform
 } from 'react-native'
+import PropTypes from 'prop-types'
 
 const { height } = Dimensions.get('window')
 const { OS } = Platform
@@ -22,7 +23,7 @@ const duration = 500
 const maxHeight = height * 0.9
 
 // Why use useRef with animated value : https://github.com/facebook/react-native/issues/25069
-const BottomSheetComponent = ({ shouldOpen = false, onClose, renderContent, scrollEnabled = false, persistent = false }) => {
+const BottomSheetComponent = ({ shouldOpen, scrollEnabled, persistent, onClose, renderContent, }) => {
     const [ isOpen, setIsOpen ] = useState(false)
     const [ contentHeight, setContentHeight ] = useState(0) // height of the content inside the bottom sheet
     const [ keyboardHeight, setKeyboardHeight ] = useState(0) // get size of the keyboard
@@ -278,6 +279,21 @@ const BottomSheetComponent = ({ shouldOpen = false, onClose, renderContent, scro
         </>
     )
 }
+
+BottomSheetComponent.propType = {
+    shouldOpen: PropTypes.bool,
+    scrollEnable: PropTypes.bool,
+    persistent: PropTypes.bool,
+    onClose: PropTypes.func,
+    renderContent: PropTypes.func,
+}
+
+BottomSheetComponent.defaultProps = {
+    shouldOpen: false,
+    scrollEnable: false,
+    persistent: false
+}
+
 
 const styles = StyleSheet.create({
     containerBottomSheet: {
