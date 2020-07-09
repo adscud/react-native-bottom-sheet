@@ -10,5 +10,3 @@ Native bottom sheet support Gesture Handler.
 - [x] Make it reusable component
 - [x] Handle Keyboard cycle 
 - [x] Back handler
-- [ ] Add points support
-- [ ] Add interactivity option (can use what happens behind the bottom-sheet)
